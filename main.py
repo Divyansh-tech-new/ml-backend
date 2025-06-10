@@ -46,4 +46,5 @@ def predict(data: InputData):
         data.Energy_level
     ]]
     prediction = model.predict(input_vector)
-    return {"result": prediction[0]}
+    # Convert numpy.int64 to plain Python int
+    return {"result": int(prediction[0])}
