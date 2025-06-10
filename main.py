@@ -3,13 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 
-# Initialize FastAPI app
 app = FastAPI()
 
-# Allow CORS for frontend
 origins = [
-    "https://v0-react-frontend-orcin.vercel.app",  # your deployed frontend
-    "http://localhost:3000"  # for local dev
+    "https://v0-react-frontend-orcin.vercel.app",
+    "http://localhost:3000"
 ]
 
 app.add_middleware(
@@ -20,31 +18,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load trained model
 model = joblib.load("model.pkl")
 
-# Define input data schema
 class InputData(BaseModel):
-    Going_outside: int
     Time_spent_Alone: int
     Stage_fear: int
+    Social_events: int
+    Going_outside: int
     Drained_after_socializing: int
-    Reading_books: int
-    Talkativeness: int
-    Energy_level: int
+    Friends_circle: int
+    Post_frequency: int
 
-# Define prediction route
 @app.post("/predict")
 def predict(data: InputData):
     input_vector = [[
-        data.Going_outside,
         data.Time_spent_Alone,
         data.Stage_fear,
+        data.Social_events,
+        data.Going_outside,
         data.Drained_after_socializing,
-        data.Reading_books,
-        data.Talkativeness,
-        data.Energy_level
+        data.Friends_circle,
+        data.Post_frequency
     ]]
     prediction = model.predict(input_vector)
-    # Convert numpy.int64 to plain Python int
     return {"result": int(prediction[0])}
