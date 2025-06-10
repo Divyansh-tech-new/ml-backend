@@ -6,18 +6,15 @@ import numpy
 import os
 from pymongo import MongoClient
 
-# --- NEW: MongoDB Setup ---
-# Get the connection string from the environment variable set in Render
+# --- MongoDB Setup ---
+# (This part already has good logging, no changes needed here)
 MONGO_URI = os.getenv("MONGO_URI")
 
-# Create a MongoDB client instance. Handle the case where the URI is not set.
 client = None
 if MONGO_URI:
     try:
         client = MongoClient(MONGO_URI)
-        # Select your database (it will be created if it doesn't exist)
         db = client.personality_db
-        # Select your collection (like a table in SQL)
         collection = db.assessments
         print("✅ Successfully connected to MongoDB.")
     except Exception as e:
@@ -51,37 +48,55 @@ class InputData(BaseModel):
     Friends_circle_size: int
     Post_frequency: int
 
-# --- NEW: Define schema for data to be saved to MongoDB ---
-# It includes all the input data AND the prediction result
+# Define schema for data to be saved to MongoDB (no changes needed)
 class AssessmentData(InputData):
     prediction: int
 
-# Prediction route (no changes needed)
+# --- PREDICTION ROUTE WITH LOGGING ---
 @app.post("/predict")
 def predict(data: InputData):
+    print("\n--- 🔮 /predict endpoint hit ---")
+    print(f"1. Received raw data from frontend: {data.dict()}")
+
     input_vector = [[
         data.Time_spent_Alone, data.Stage_fear, data.Social_event_frequency,
         data.Going_out, data.Drained_after_socializing, data.Friends_circle_size,
         data.Post_frequency
     ]]
-    input_vector_scaled = scaler.transform(input_vector)
-    prediction = model.predict(input_vector_scaled)
-    result = prediction[0]
-    return {"result": int(result)}
+    print(f"2. Created input vector: {input_vector}")
 
-# --- NEW: Endpoint to save assessment data ---
+    input_vector_scaled = scaler.transform(input_vector)
+    print(f"3. Scaled vector for model: {input_vector_scaled}")
+
+    prediction = model.predict(input_vector_scaled)
+    result = int(prediction[0])
+    print(f"4. Model prediction: {result}")
+    
+    print("5. Sending response back to frontend.")
+    print("--------------------------------\n")
+    return {"result": result}
+
+# --- SAVE ASSESSMENT ROUTE WITH LOGGING ---
 @app.post("/save-assessment")
 def save_assessment(data: AssessmentData):
-    # Check if the database connection was successful
+    print("\n--- 💾 /save-assessment endpoint hit ---")
+    
     if not client:
+        print("❌ Database not configured. Aborting save.")
+        print("-------------------------------------\n")
         return {"status": "error", "message": "Database not configured or connection failed."}
     
     try:
-        # Convert Pydantic model to a dictionary to insert into MongoDB
         data_dict = data.dict()
-        # Insert the document into the collection
+        print(f"1. Received data to save: {data_dict}")
+
         collection.insert_one(data_dict)
+        print("2. ✅ Successfully inserted data into MongoDB.")
+        
+        print("3. Sending success response back to frontend.")
+        print("------------------------------------------\n")
         return {"status": "success", "message": "Assessment saved successfully."}
     except Exception as e:
-        # Basic error handling
+        print(f"❌ An error occurred while saving to MongoDB: {e}")
+        print("------------------------------------------\n")
         return {"status": "error", "message": str(e)}
