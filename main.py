@@ -27,8 +27,13 @@ else:
 # Initialize FastAPI app
 app = FastAPI()
 
-# CORS Middleware (no changes needed)
-origins = ["https://v0-react-frontend-orcin.vercel.app", "http://localhost:3000"]
+# --- CORRECTED: The CORS origins list has been updated ---
+origins = [
+    "https://v0-react-frontend-orcin.vercel.app",  # Your existing Vercel frontend
+    "http://localhost:3000",                       # For local development
+    "https://dynamic-bubbles.preview.emergentagent.com"  # New URL added
+]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
