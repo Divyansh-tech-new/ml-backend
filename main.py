@@ -21,11 +21,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load trained model
-# Ensure this model was trained with the new feature set in the correct order
+# Load the trained model AND the scaler
 model = joblib.load("model.pkl")
+# --- ADD THIS LINE ---
+scaler = joblib.load("scaler.pkl")
 
-# Define input data schema based on the fields from the image
+# Define input data schema - This part is correct.
 class InputData(BaseModel):
     Time_spent_Alone: int
     Stage_fear: int
@@ -38,7 +39,7 @@ class InputData(BaseModel):
 # Define prediction route
 @app.post("/predict")
 def predict(data: InputData):
-    # The order of features here MUST match the order used to train 'model.pkl'
+    # This input vector correctly matches your training data order.
     input_vector = [[
         data.Time_spent_Alone,
         data.Stage_fear,
@@ -49,7 +50,11 @@ def predict(data: InputData):
         data.Post_frequency
     ]]
     
-    prediction = model.predict(input_vector)
+    # --- ADD THIS LINE: Apply the scaling transformation ---
+    input_vector_scaled = scaler.transform(input_vector)
+    
+    # --- CHANGE THIS LINE: Predict using the SCALED vector ---
+    prediction = model.predict(input_vector_scaled)
     
     # Convert numpy types to plain Python types for JSON serialization
     result = prediction[0]
