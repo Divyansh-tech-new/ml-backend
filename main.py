@@ -29,13 +29,16 @@ app = FastAPI()
 
 # --- CORRECTED: The CORS origins list has been updated ---
 # --- CORRECTED: The CORS origins list has been updated ---
+# --- CORRECTED: The CORS origins list has been updated ---
 origins = [
     "https://v0-react-frontend-orcin.vercel.app",        # Your existing Vercel frontend
     "http://localhost:3000",                             # For local development
     "https://dynamic-bubbles.preview.emergentagent.com", # An existing preview URL
     "https://float-ui.preview.emergentagent.com",        # A previous preview URL
-    "https://brain-bubble-ui.preview.emergentagent.com"  # <-- New URL added here
+    "https://brain-bubble-ui.preview.emergentagent.com", # A previous preview URL
+    "https://app-only.preview.emergentagent.com"         # <-- New URL added here
 ]
+
 
 
 
