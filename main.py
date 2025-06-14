@@ -31,8 +31,10 @@ app = FastAPI()
 origins = [
     "https://v0-react-frontend-orcin.vercel.app",  # Your existing Vercel frontend
     "http://localhost:3000",                       # For local development
-    "https://dynamic-bubbles.preview.emergentagent.com"  # New URL added
+    "https://dynamic-bubbles.preview.emergentagent.com", # An existing preview URL
+    "https://float-ui.preview.emergentagent.com"   # Add this new URL
 ]
+
 
 app.add_middleware(
     CORSMiddleware,
