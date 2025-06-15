@@ -32,8 +32,10 @@ app = FastAPI()
 # --- CORRECTED: The CORS origins list has been updated ---
 # --- The CORS origins list updated to a single URL ---
 origins = [
-    "https://new-seven-pearl.vercel.app"  # Only this frontend can access the API
+    "https://new-seven-pearl.vercel.app",
+    "https://ml9-xifg.vercel.app"
 ]
+
 
 
 
